@@ -2,15 +2,15 @@ kind: ClusterConfig
 apiVersion: eksctl.io/v1alpha5
 
 metadata: 
-  name:   # eks-cluster-name
-  region: us-east-1
+  name: $CLUSTER_NAME  # eks-cluster-name
+  region: us-east-2
   version: '1.30' # Valid variants are: "1.23", "1.24", "1.25", "1.26", "1.27", "1.28", "1.29", "1.30" (default), "1.31".
   tags:
     stage: production
 
 nodeGroups:
   - name: nodeGroupOne 
-    instanceType:  t3.large # or t3.large
+    instanceType: $INSTANCE_TYPE   # or t3 and t2 architecture is amd 
     desiredCapacity: 1 # total the nodes to apply
     # Supported All Policies
     iam:
@@ -27,6 +27,24 @@ nodeGroups:
         awsLoadBalancerController: true
         xRay: true
         cloudWatch: true
+  # - name: nodeGroupTwo
+  #   instanceType: t4g.large   # arm64 architecture
+  #   desiredCapacity: 1 # total the nodes to apply
+  #   # Supported All Policies
+  #   iam:
+  #     withAddonPolicies:
+  #       imageBuilder: true
+  #       autoScaler: true
+  #       externalDNS: true
+  #       certManager: true
+  #       appMesh: true
+  #       appMeshPreview: true
+  #       ebs: true
+  #       fsx: true
+  #       efs: true
+  #       awsLoadBalancerController: true
+  #       xRay: true
+  #       cloudWatch: true
 
 # If the vpc if exists
 vpc:
@@ -38,7 +56,7 @@ vpc:
 
 secretsEncryption:
   # KMS key used for envelope encryption of Kubernetes secrets
-  keyARN:  # $KMS_KEY_ARN # arn:aws:kms:us-east-2:123456789012:key/alias/eksctl-demo-cluster
+  keyARN: $KMS_ARN # $KMS_KEY_ARN # arn:aws:kms:us-east-2:123456789012:key/alias/eksctl-demo-cluster
 
 cloudWatch:
   clusterLogging:
