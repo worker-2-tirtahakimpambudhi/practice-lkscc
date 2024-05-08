@@ -13,10 +13,10 @@ spec:
     spec:
       containers:
       - name: gohealth-container
-        image: 277789128961.dkr.ecr.us-east-1.amazonaws.com/go-health:latest
+        image: $IMAGE_NAME
         resources:
           limits:
-            memory: "256Mi"
+            memory: "128Mi"
             cpu: "100m"
         ports:
         - containerPort: 8080
@@ -47,10 +47,10 @@ metadata:
   labels:
     name: gohealth-ingress
   annotations:
-    alb.ingress.kubernetes.io/load-balancer-name: "go-alb-ingress"
+    alb.ingress.kubernetes.io/load-balancer-name: $LOAD_BALANCER_NAME
     alb.ingress.kubernetes.io/ip-address-type: ipv4
     alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/healthcheck-path: $HEALTH_CHECK_PATH # /health
     alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
     alb.ingress.kubernetes.io/healthcheck-port: traffic-port
     alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
