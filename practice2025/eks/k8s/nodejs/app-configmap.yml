@@ -3,8 +3,8 @@ kind: ConfigMap
 metadata:
   name: app-configmap
 data:
-  REGION: us-east-1 # us-east-1
-  BUCKET_NAME: bucket-thp35 # bucket-tirtahakimp35
+  REGION: $REGION_NAME # us-east-1
+  BUCKET_NAME: $BUCKET_NAME # bucket-tirtahakimp35
   PORT: '3000'
   HOST: '0.0.0.0'
   
