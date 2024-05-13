@@ -80,6 +80,44 @@ Policy Minimal For EKS Question LKS:
     - AmazonVPCFullAccess 
     - AWSCloudFormationFullAccess 
     - EksFullAccess (Custom)
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "eks:*",
+            "Resource": "*"
+        },
+        {
+            "Action": [
+                "ssm:GetParameter",
+                "ssm:GetParameters"
+            ],
+            "Resource": [
+                "arn:aws:ssm:*:277789128961:parameter/aws/*",
+                "arn:aws:ssm:*::parameter/aws/*"
+            ],
+            "Effect": "Allow"
+        },
+        {
+             "Action": [
+               "kms:CreateGrant",
+               "kms:DescribeKey"
+             ],
+             "Resource": "*",
+             "Effect": "Allow"
+        },
+        {
+             "Action": [
+               "logs:PutRetentionPolicy"
+             ],
+             "Resource": "*",
+             "Effect": "Allow"
+        }        
+    ]
+}
+```
     - AWSKeyManagementServicePowerUser
 
 Roles for AWS Services:
@@ -109,15 +147,15 @@ aws iam create-policy \
 ## EKS (Production)
 
 1. Create Custom KMS for EKS
-2. Create Cluster by eksctl 
+2. Create Access Key and Login AWS CLI -> Create Cluster by eksctl 
 3. While waiting for the finished cluster EKS do Create
- - Security Group(RDS,Elasticache)
-    -> RDS(attach the SG) 
-    -> Elasticache(attach the SG)
- - S3 
- - ECR(Front End and Back End) 
-    -> Build Application (Front End and Back End) 
-        -> re tag the image to ECR image and Push Image Result re tag ECR
+    - Security Group(RDS,Elasticache)
+        -> RDS(attach the SG) 
+        -> Elasticache(attach the SG)
+    - S3 
+    - ECR(Front End and Back End) 
+        -> Build Application (Front End and Back End) 
+            -> re tag the image to ECR image and Push Image Result re tag ECR
 4. Configuration the App 
 
 ## Autoscalling Based (Development)
@@ -138,3 +176,34 @@ aws iam create-policy \
 11. AMI (Front End and Back End)
 12. Launch Template
 13. Autoscalling with polices cpu utilization
+
+
+
+# Solving Error Exec Binary
+
+EC2 Instance Type with end g or AWS Graviton CPU is architecthure ARM and without g is architecture AMD
+```bash
+# For multi archi docker registry
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t tirtahakimpambudhi/nodejs-s3-appv3:multiarch \
+  --push \
+  .
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t tirtahakimpambudhi/go-health:multiarch \
+  --push \
+  .
+# Specific
+docker buildx build \
+  --platform linux/arm64 \
+  -t tirtahakimpambudhi/go-health:arm \
+  --push \
+  .
+  
+docker buildx build \
+  --platform linux/amd64 \
+  -t tirtahakimpambudhi/go-health:amd \
+  --push \
+  .
+```
