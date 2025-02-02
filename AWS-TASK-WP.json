@@ -1,0 +1,83 @@
+{
+	"containerDefinitions": [
+		{
+			"name": "wordpress",
+			"image": "$ECR",
+			"cpu": 0,
+			"portMappings": [
+				{
+					"name": "wordpress-80-tcp",
+					"containerPort": 80,
+					"hostPort": 80,
+					"protocol": "tcp",
+					"appProtocol": "http"
+				}
+			],
+			"essential": true,
+			"environment": [
+				{
+					"name": "WORDPRESS_DB_USER",
+					"value": "$DB_USER"
+				},
+				{
+					"name": "WORDPRESS_DB_HOST",
+					"value": "$DB_HOST"
+				},
+				{
+					"name": "WORDPRESS_DB_PASSWORD",
+					"value": "$DB_PASS"
+				},
+				{
+					"name": "WORDPRESS_DB_NAME",
+					"value": "$DB_NAME"
+				},
+				{
+					"name": "WORDPRESS_CONFIG_EXTRA",
+					"value": "define( 'FORCE_SSL_ADMIN', true );"
+				}
+			],
+			"environmentFiles": [],
+			"mountPoints": [],
+			"volumesFrom": [],
+			"ulimits": [],
+			"logConfiguration": {
+				"logDriver": "awslogs",
+				"options": {
+					"awslogs-group": "/ecs/TaskWPContainer",
+					"mode": "non-blocking",
+					"awslogs-create-group": "true",
+					"max-buffer-size": "25m",
+					"awslogs-region": "us-east-1",
+					"awslogs-stream-prefix": "ecs"
+				},
+				"secretOptions": []
+			},
+			"systemControls": []
+		}
+	],
+	"family": "TaskWPContainer",
+	"taskRoleArn": "arn:aws:iam::$ACCOUNT_ID:role/LabRole",
+	"executionRoleArn": "arn:aws:iam::$ACCOUNT_ID:role/LabRole",
+	"networkMode": "awsvpc",
+	"volumes": [
+		{
+			"name": "wp-volume",
+			"efsVolumeConfiguration": {
+				"fileSystemId": "$FS_ID",
+				"rootDirectory": "/"
+			}
+		}
+	],
+	"placementConstraints": [],
+	"requiresCompatibilities": [
+		"FARGATE"
+	],
+	"cpu": "1024",
+	"memory": "3072",
+	"runtimePlatform": {
+		"cpuArchitecture": "X86_64",
+		"operatingSystemFamily": "LINUX"
+	},
+	"enableFaultInjection": false,
+	"tags": []
+}
