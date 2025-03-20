@@ -13,13 +13,13 @@ REPOSITORY: $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME:latest
 ## RDS (RELATIONAL DATABASE SERVICE)
 ### Example
 
-USERNAME: $DATABASE_USERNAME
+USERNAME: TirtaHakimP35
 
-PASSWORD: $DATABASE_PASSWORD
+PASSWORD: TirtaHakimP35
 
-NAME: $DATABASE_NAME
+NAME: laravel
 
-ENDPOINT: rds-$INSTANCE_NAME.$RANDOM.$REGION.rds.amazonaws.com
+ENDPOINT: 
 
 ## ECS (Elastic Container Service)
 
@@ -66,7 +66,13 @@ FS-ID: fs-XXXX
 
 ## ELASTIC CACHE
 
-ENDPOINT: tls://master.$INSTANCE_NAME.$RANDOM.$RANDOM.cache.amazonaws.com
+ENDPOINT: tls://
+
+## SQS
+
+NAME: laravel-queue
+
+URL: 
 
 ## KMS (Key Management Service)
 
@@ -86,9 +92,9 @@ AWS Service Use KMS For Encryption -> (RDS,ECR,ECS,S3,ELASTICACHE,EFS,EKS)
 AWS CREDENTIALS LOCATION IN ``` ~/.aws/credentials ```
 ```
 [default]
-aws_access_key_id =
-aws_secret_access_key =
-aws_session_token = 
+aws_access_key_id=
+aws_secret_access_key=
+aws_session_token=
 ```
 
 ## WARNING FOR LKS LARAVEL APP
