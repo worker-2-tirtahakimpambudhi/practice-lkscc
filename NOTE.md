@@ -98,12 +98,16 @@ aws_session_token=
 ```
 
 ## WARNING FOR LKS LARAVEL APP
-
+- Mount EFS
 - change redis default and cache config add the scheme to tls
 - dont forgot change region
 - dont forgot change session token in config with key token in s3 and sqs
 - dont forgot key:generate
 - dont forgot migrate the db
 - dont forgot change permission on folder public with -R
-- if the load balancer success create auto scaling with new load balancer
-    
+- if the load balancer success create auto scaling with EXISTING load balancer
+- dont forgot change permission for storage dir is www-data midification permission 777 with argument -R mean recursively
+- dont forgot change permission for bootstrap dir is www-data midification permission 777 with argument -R mean recursively
+- dont forgot change permission for public dir is www-data midification permission 755 with argument -R mean recursively
+- dont forgot add scheme redis
+
