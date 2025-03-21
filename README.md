@@ -25,7 +25,7 @@ H:.
    ```sh
    dos2unix script/*.sh
    ```
-2. Run `sudo bash script/setup_laravel.sh or sudo bash script/setup_laravel.sh` to start the necessary services.
+2. Run `sudo bash script/setup_laravel.sh or sudo bash script/setup_laravelV2.sh` to start the necessary services.
 3. Ensure the `.env` file is correctly configured.
 4. Run the database migration:
    ```sh
