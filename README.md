@@ -7,11 +7,11 @@ This repository contains practical exercises for the LKS Cloud Computing 2025 co
 ```
 H:.
 ├───lksdiycc2024           # Source code for the LKS DIY Cloud Computing 2024 competition with upgrade Laravel 11
-├───practice2025           # Practice exercises based on the LKS 2025 syllabus
+├───practice2025           # Practice exercises based on the LKS 2025 cloud computing
 │   ├───eks                # Experimenting with Amazon EKS
 │   └───minikube           # Local Kubernetes with Minikube
-│       └───bitnami        # Deployment using Bitnami
-│           └───wordpress  # Deploying WordPress using Helm
+│       └───bitnami        # Deployment with image from bitnami provider
+│           └───wordpress  # Deploying WordPress 
 │               ├───mysql  # MySQL database for WordPress
 │               └───wp     # WordPress configuration
 │
