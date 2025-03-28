@@ -1,0 +1,43 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  migrate-db:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+        name: Checkout Repository
+
+      - name: Install Golang Migrate
+        run: |
+          curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.1/migrate.linux-amd64.tar.gz | tar xvz
+          sudo mv migrate /usr/bin/
+          which migrate
+
+      - name: Running Migrate DB
+        run: make db_up DB_URL="${{secrets.PROD_POSTGRES_URL}}"
+
+  deploy-job:
+    needs:
+      - migrate-db
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SVC_ID: ${{ github.event.repository.name }}
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4.2.2
+        name: Checkout Repository
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4.1.0
+
+      - name: Install Railway Latest
+        run: npm i -g @railway/cli@3.20.0
+
+      - name: Running Service Auth API
+        run: railway up -s $SVC_ID -e ${{ secrets.RAILWAY_ENVIRONMENT }} -d
