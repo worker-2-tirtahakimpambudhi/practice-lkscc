@@ -3,7 +3,7 @@
 sudo apt update -y
 
 sudo apt install wget -y
-
+sudo apt-get install libcap2-bin -y
 read -p "Enter Golang Version (default: 1.24.1) " input_go_version
 
 GO_VERSION=${input_go_version:-"1.24.1"}
@@ -41,3 +41,6 @@ source ~/.profile
 go_version=$(go version)
 echo "Go Version $go_version"
 source ~/.profile
+
+echo "Setting Go Permission to Open Port"
+sudo setcap cap_net_bind_service=+ep `readlink -f \`which go\``
