@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -53,7 +52,7 @@ func init() {
 	}
 
 	options := &redis.Options{
-		Addr: os.Getenv("REDIS_HOST"),
+		Addr: os.Getenv("REDIS_HOST")+":"+os.Getenv("REDIS_PORT"),
 		DB: 1,
 	}
 
@@ -94,18 +93,12 @@ func healthCheck(c *gin.Context) {
 
 func main() {
 	defer db.Close()
-	addr := host+port
+	addr := host+":"+port
 	r := gin.Default()
 	r.GET("/health", healthCheck)
-
-	srv := &http.Server{
-		Addr:         addr,
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
-	}
-
+	
 	log.Printf("Starting server on %s \n", addr)
-	if err := srv.ListenAndServe(); err != nil {
+	if err := r.Run(addr); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 }
