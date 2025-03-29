@@ -1,0 +1,166 @@
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: "Lint, Test and Scan Dependencies"
+    defaults:
+      run:
+        shell: bash
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4.1.0
+
+      - name: Setup Go environment
+        uses: actions/setup-go@v5.2.0
+        with:
+          go-version: "1.22.7"
+
+      - name: Install OSV Scanner
+        run: go install github.com/google/osv-scanner/cmd/osv-scanner@v1
+
+      - name: Scan Dependencies
+        run: make pkg_scan
+
+      - name: Build API Docs
+        run: |
+          npm ci && npm run build
+
+      - name: Running Lint Go
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.56.0
+          args: --config .golangci.yaml
+
+      - name: Running Unit Test Go
+        run: go mod download && make tests
+
+  smoke_test:
+    name: "Smoke Test Container Of Image before Push to Registry"
+    runs-on: ubuntu-22.04
+    needs:
+      - build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Setting .env file for Docker Compose
+        run: |
+          # Commands for .env.dev.auth_api
+          echo "PORT=${{secrets.PORT}}" >> .env.dev.auth_api
+          echo "CACHE_DB_NAME=${{secrets.REDIS_NAME}}" >> .env.dev.auth_api
+          echo "CACHE_DB_HOST=${{secrets.REDIS_HOST}}" >> .env.dev.auth_api
+          echo "CACHE_DB_PORT=${{secrets.REDIS_PORT}}" >> .env.dev.auth_api
+          echo "CACHE_DB_USER=${{secrets.REDIS_USER}}" >> .env.dev.auth_api
+          echo "CACHE_DB_PASS=${{secrets.REDIS_PASSWORD}}" >> .env.dev.auth_api
+          echo "CACHE_DB_MAX_CON=${{secrets.REDIS_MAX_CON}}" >> .env.dev.auth_api
+          echo "CACHE_DB_MIN_CON=${{secrets.REDIS_MIN_CON}}" >> .env.dev.auth_api
+          echo "CACHE_DB_MAX_TIME=${{secrets.REDIS_MAX_TIME}}" >> .env.dev.auth_api
+          echo "CACHE_DB_MIN_TIME=${{secrets.REDIS_MIN_TIME}}" >> .env.dev.auth_api
+          echo "MODEL_PATH=${{secrets.MODEL_PATH}}" >> .env.dev.auth_api
+          echo "FIBER_HOST=${{secrets.FIBER_HOST}}" >> .env.dev.auth_api
+          echo "FIBER_PORT=${{secrets.FIBER_PORT}}" >> .env.dev.auth_api
+          echo "FIBER_PREFORK=${{secrets.FIBER_PREFORK}}" >> .env.dev.auth_api
+          echo "FIBER_STRICT_ROUTING=${{secrets.FIBER_STRICT_ROUTING}}" >> .env.dev.auth_api
+          echo "FIBER_CASE_SENSITIVE=${{secrets.FIBER_CASE_SENSITIVE}}" >> .env.dev.auth_api
+          echo "FIBER_BODY_LIMIT=${{secrets.FIBER_BODY_LIMIT}}" >> .env.dev.auth_api
+          echo "FIBER_READ_TIMEOUT=${{secrets.FIBER_READ_TIMEOUT}}" >> .env.dev.auth_api
+          echo "FIBER_WRITE_TIMEOUT=${{secrets.FIBER_WRITE_TIMEOUT}}" >> .env.dev.auth_api
+          echo "FIBER_REDUCE_MEMU=${{secrets.FIBER_REDUCE_MEMU}}" >> .env.dev.auth_api
+          echo "FIBER_JSON=${{secrets.FIBER_JSON}}" >> .env.dev.auth_api
+          echo "HASH_SALT=${{secrets.HASH_SALT}}" >> .env.dev.auth_api
+          echo "LOG_PATH=${{secrets.LOG_PATH}}" >> .env.dev.auth_api
+          echo "LOG_MAX_SIZE=${{secrets.LOG_MAX_SIZE}}" >> .env.dev.auth_api
+          echo "LOG_MAX_BACKUP=${{secrets.LOG_MAX_BACKUP}}" >> .env.dev.auth_api
+          echo "LOG_MAX_SIZE_ROTATE=${{secrets.LOG_MAX_SIZE_ROTATE}}" >> .env.dev.auth_api
+          echo "LOG_TIME_FORMAT=${{secrets.LOG_TIME_FORMAT}}" >> .env.dev.auth_api
+          echo "LOG_COLOR_OUTPUT=${{secrets.LOG_COLOR_OUTPUT}}" >> .env.dev.auth_api
+          echo "LOG_QUOTE_STR=${{secrets.LOG_QUOTE_STR}}" >> .env.dev.auth_api
+          echo "LOG_END_WITH_MESSAGE=${{secrets.LOG_END_WITH_MESSAGE}}" >> .env.dev.auth_api
+          echo "DB_DRIVER=${{secrets.POSTGRES_DRIVER}}" >> .env.dev.auth_api
+          echo "DB_PROTOCOL=${{secrets.POSTGRES_PROTOCOL}}" >> .env.dev.auth_api
+          echo "DB_NAME=${{secrets.POSTGRES_DB}}" >> .env.dev.auth_api
+          echo "DB_HOST=${{secrets.POSTGRES_HOST}}" >> .env.dev.auth_api
+          echo "DB_PORT=${{secrets.POSTGRES_PORT}}" >> .env.dev.auth_api
+          echo "DB_USER=${{secrets.POSTGRES_USER}}" >> .env.dev.auth_api
+          echo "DB_PASS=${{secrets.POSTGRES_PASSWORD}}" >> .env.dev.auth_api
+          echo "DB_MAX_CON=${{secrets.POSTGRES_MAX_CON}}" >> .env.dev.auth_api
+          echo "DB_MIN_CON=${{secrets.POSTGRES_MIN_CON}}" >> .env.dev.auth_api
+          echo "DB_MAX_TIME=${{secrets.POSTGRES_MAX_TIME}}" >> .env.dev.auth_api
+          echo "DB_MIN_TIME=${{secrets.POSTGRES_MIN_TIME}}" >> .env.dev.auth_api
+          echo "TOKEN_NAME=${{secrets.TOKEN_NAME}}" >> .env.dev.auth_api
+          echo "SECRET_KEY_ACCESS_TOKEN=${{secrets.SECRET_KEY_ACCESS_TOKEN}}" >> .env.dev.auth_api
+          echo "SECRET_KEY_REFRESH_TOKEN=${{secrets.SECRET_KEY_REFRESH_TOKEN}}" >> .env.dev.auth_api
+          echo "SECRET_KEY_FP_TOKEN=${{secrets.SECRET_KEY_FP_TOKEN}}" >> .env.dev.auth_api
+          echo "SECRET_KEY_CSRF=${{secrets.SECRET_KEY_CSRF}}" >> .env.dev.auth_api
+          echo "SECRET_TEST_CLIENT=${{secrets.SECRET_TEST_CLIENT}}" >> .env.dev.auth_api
+          echo "CACHE_TIMEOUT=${{secrets.REDIS_TIMEOUT}}" >> .env.dev.auth_api
+          echo "DB_TIMEOUT=${{secrets.POSTGRES_TIMEOUT}}" >> .env.dev.auth_api
+          echo "DOWN_STREAM_TIMEOUT=${{secrets.DOWN_STREAM_TIMEOUT}}" >> .env.dev.auth_api
+          echo "CORS_ALLOW_METHODS=${{secrets.CORS_ALLOW_METHODS}}" >> .env.dev.auth_api
+          echo "CORS_ALLOW_HEADERS=${{secrets.CORS_ALLOW_HEADERS}}" >> .env.dev.auth_api
+          echo "CORS_EXPOSE_HEADERS=${{secrets.CORS_EXPOSE_HEADERS}}" >> .env.dev.auth_api
+          echo "CORS_ALLOW_ORIGINS=${{secrets.CORS_ALLOW_ORIGINS}}" >> .env.dev.auth_api
+          echo "CORS_ALLOW_CREDENTIALS=${{secrets.CORS_ALLOW_CREDENTIALS}}" >> .env.dev.auth_api
+          
+          # Commands for .env.dev.smoketest
+          echo "BASE_URL=${{secrets.BASE_URL}}" >> .env.dev.smoketest
+          echo "SECRET_TEST_CLIENT=${{secrets.SECRET_TEST_CLIENT}}" >> .env.dev.smoketest
+          echo "RANDOM_KSUID=${{secrets.RANDOM_KSUID}}" >> .env.dev.smoketest
+          
+          # Commands for .env.dev.redis
+          echo "REDIS_PASSWORD=${{secrets.REDIS_PASSWORD}}" >> .env.dev.redis
+          echo "REDIS_PORT=${{secrets.REDIS_PORT}}" >> .env.dev.redis
+          echo "REDIS_DATABASES=${{secrets.REDIS_DATABASES}}" >> .env.dev.redis
+          
+          # Commands for .env.dev.postgres
+          echo "POSTGRES_DB=${{secrets.POSTGRES_DB}}" >> .env.dev.postgres
+          echo "POSTGRES_USER=${{secrets.POSTGRES_USER}}" >> .env.dev.postgres
+          echo "POSTGRES_PASSWORD=${{secrets.POSTGRES_PASSWORD}}" >> .env.dev.postgres
+
+      - name: Smoke Test Auth API
+        run: docker compose -f smoke.docker-compose.yml up --exit-code-from smoketest
+
+  release:
+    name: "Push to Registry"
+    runs-on: ubuntu-22.04
+    needs:
+      - smoke_test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Image and Push to Docker Registry
+        run: |
+          docker buildx build --push -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{secrets.IMAGE_TAG}} \
+          --build-arg username=${{secrets.APP_USER}} \
+          --build-arg unique_id=${{secrets.APP_ID}} .
