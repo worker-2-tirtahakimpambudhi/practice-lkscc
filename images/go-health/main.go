@@ -8,20 +8,109 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
+	goredis "github.com/go-redis/redis/v8"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 )
 
 var (
 	db    *sql.DB
-	rdb   *redis.Client
+	rdb   goredis.UniversalClient
 	ctx   = context.Background()
 	port  = "8080"
 	host  = "0.0.0.0"
 )
+
+func initRedisClient() goredis.UniversalClient {
+	// Determine if it's a cluster or single instance
+	isCluster := os.Getenv("REDIS_CLUSTER") == "true"
+
+	// Parse Redis hosts
+	redisHosts := strings.Split(os.Getenv("REDIS_HOSTS"), ",")
+
+	// TLS Configuration
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: os.Getenv("REDIS_TLS_INSECURE") == "true",
+	}
+
+	// Check if TLS is enabled
+	useTLS := os.Getenv("REDIS_TLS") == "true"
+
+	if isCluster {
+		// Redis Cluster Configuration
+		clusterOptions := &goredis.ClusterOptions{
+			Addrs:    redisHosts,
+			Password: os.Getenv("REDIS_PASSWORD"),
+
+			// Connection Pool Configuration
+			PoolSize:     10,
+			MinIdleConns: 10,
+
+			// Timeout Configurations
+			DialTimeout:  5 * time.Second,
+			ReadTimeout:  3 * time.Second,
+			WriteTimeout: 3 * time.Second,
+			PoolTimeout:  4 * time.Second,
+
+			// Connection Management
+			IdleCheckFrequency: 60 * time.Second,
+			IdleTimeout:        5 * time.Minute,
+			MaxConnAge:         0 * time.Second,
+
+			// Retry Mechanism
+			MaxRetries:      10,
+			MinRetryBackoff: 8 * time.Millisecond,
+			MaxRetryBackoff: 512 * time.Millisecond,
+
+			// Routing and Read Configurations
+			ReadOnly:       false,
+			RouteRandomly:  false,
+			RouteByLatency: false,
+		}
+
+		// Add TLS Config if enabled
+		if useTLS {
+			clusterOptions.TLSConfig = tlsConfig
+		}
+
+		log.Println("Initializing Redis Cluster Client")
+		return goredis.NewClusterClient(clusterOptions)
+	} else {
+		// Single Redis Instance Configuration
+		redisOptions := &goredis.Options{
+			Addr:     redisHosts[0], // Use first host for single instance
+			Password: os.Getenv("REDIS_PASSWORD"),
+			DB:       0, // Default database
+
+			// Connection Pool Configuration
+			PoolSize:     10,
+			MinIdleConns: 10,
+
+			// Timeout Configurations
+			DialTimeout:  5 * time.Second,
+			ReadTimeout:  3 * time.Second,
+			WriteTimeout: 3 * time.Second,
+			PoolTimeout:  4 * time.Second,
+
+			// Connection Management
+			IdleCheckFrequency: 60 * time.Second,
+			IdleTimeout:        5 * time.Minute,
+			MaxConnAge:         0 * time.Second,
+		}
+
+		// Add TLS Config if enabled
+		if useTLS {
+			redisOptions.TLSConfig = tlsConfig
+		}
+
+		log.Println("Initializing Single Redis Client")
+		return goredis.NewClient(redisOptions)
+	}
+}
 
 func init() {
 	err := godotenv.Load()
@@ -51,27 +140,14 @@ func init() {
 		host = os.Getenv("HOST")
 	}
 
-	options := &redis.Options{
-		Addr: os.Getenv("REDIS_HOST")+":"+os.Getenv("REDIS_PORT"),
-		DB: 1,
-	}
+	// Initialize Redis Client
+	rdb = initRedisClient()
 
-	if os.Getenv("REDIS_TLS") == "true" {
-		options.TLSConfig = &tls.Config{
-			InsecureSkipVerify: true, // Set to false in production for better security
-		}
+	// Verify initial connection
+	_, err = rdb.Ping(ctx).Result()
+	if err != nil {
+		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
-
-	if os.Getenv("REDIS_USER") != "" {
-		options.Username = os.Getenv("REDIS_USERNAME")
-	}
-
-	if os.Getenv("REDIS_PASSWORD") != "" {
-		options.Password = os.Getenv("REDIS_PASSWORD")
-	}
-
-	// Initialize Redis connection
-	rdb = redis.NewClient(options)
 }
 
 func healthCheck(c *gin.Context) {
@@ -93,6 +169,16 @@ func healthCheck(c *gin.Context) {
 
 func main() {
 	defer db.Close()
+	defer func() {
+		// Proper close based on client type
+		switch client := rdb.(type) {
+		case *goredis.ClusterClient:
+			client.Close()
+		case *goredis.Client:
+			client.Close()
+		}
+	}()
+
 	addr := host+":"+port
 	r := gin.Default()
 	r.GET("/health", healthCheck)
