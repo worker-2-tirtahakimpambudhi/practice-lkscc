@@ -3,6 +3,7 @@
 sudo apt update -y
 
 sudo apt install curl -y
+sudo apt-get install libcap2-bin -y
 
 read -p "Enter NodeJS Version (default: 22) " input_nodejs_version
 
@@ -44,3 +45,6 @@ npm_version=$(npm -v)
 source ~/.profile
 echo "Node.js version: $node_version"
 echo "NPM version: $npm_version"
+source ~/.profile
+echo "Setting Node Permission to Open Port"
+sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\``
