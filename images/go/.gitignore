@@ -1,0 +1,17 @@
+.env.db
+.env.dev
+.env.dev.*
+node_modules/
+client/
+resource/logs/*.log
+resource/ssl/*.pem
+.scannerwork/
+artifact/**/*.out
+script/
+sonar-project.properties
+docker-compose.yml
+db/postgresql
+db/redis
+.idea
+.git/
+
