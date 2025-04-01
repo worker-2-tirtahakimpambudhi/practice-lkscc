@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	goredis "github.com/go-redis/redis/v8"
+	goredis "github.com/redis/go-redis/v9"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 )
@@ -55,11 +55,6 @@ func initRedisClient() goredis.UniversalClient {
 			WriteTimeout: 3 * time.Second,
 			PoolTimeout:  4 * time.Second,
 
-			// Connection Management
-			IdleCheckFrequency: 60 * time.Second,
-			IdleTimeout:        5 * time.Minute,
-			MaxConnAge:         0 * time.Second,
-
 			// Retry Mechanism
 			MaxRetries:      10,
 			MinRetryBackoff: 8 * time.Millisecond,
@@ -80,7 +75,6 @@ func initRedisClient() goredis.UniversalClient {
 			clusterOptions.Username = os.Getenv("REDIS_USERNAME")
 		}
 
-		
 		if os.Getenv("REDIS_PASSWORD") != "" {
 			clusterOptions.Password = os.Getenv("REDIS_PASSWORD")
 		}
@@ -102,11 +96,6 @@ func initRedisClient() goredis.UniversalClient {
 			ReadTimeout:  3 * time.Second,
 			WriteTimeout: 3 * time.Second,
 			PoolTimeout:  4 * time.Second,
-
-			// Connection Management
-			IdleCheckFrequency: 60 * time.Second,
-			IdleTimeout:        5 * time.Minute,
-			MaxConnAge:         0 * time.Second,
 		}
 
 		// Add TLS Config if enabled
@@ -117,7 +106,6 @@ func initRedisClient() goredis.UniversalClient {
 			redisOptions.Username = os.Getenv("REDIS_USERNAME")
 		}
 
-		
 		if os.Getenv("REDIS_PASSWORD") != "" {
 			redisOptions.Password = os.Getenv("REDIS_PASSWORD")
 		}
@@ -168,14 +156,14 @@ func init() {
 func healthCheck(c *gin.Context) {
 	// Check MySQL connection
 	if err := db.Ping(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": "MySQL connection failed", "error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "MySQL connection failed", "error": err.Error()})        
 		return
 	}
 
 	// Check Redis connection
 	_, err := rdb.Ping(ctx).Result()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": "Redis connection failed", "error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "Redis connection failed", "error": err.Error()})        
 		return
 	}
 
@@ -197,7 +185,7 @@ func main() {
 	addr := host+":"+port
 	r := gin.Default()
 	r.GET("/health", healthCheck)
-	
+
 	log.Printf("Starting server on %s \n", addr)
 	if err := r.Run(addr); err != nil {
 		log.Fatalf("Server failed: %v", err)
