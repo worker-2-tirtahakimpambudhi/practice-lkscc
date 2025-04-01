@@ -44,7 +44,6 @@ func initRedisClient() goredis.UniversalClient {
 		// Redis Cluster Configuration
 		clusterOptions := &goredis.ClusterOptions{
 			Addrs:    redisHosts,
-			Password: os.Getenv("REDIS_PASSWORD"),
 
 			// Connection Pool Configuration
 			PoolSize:     10,
@@ -77,13 +76,21 @@ func initRedisClient() goredis.UniversalClient {
 			clusterOptions.TLSConfig = tlsConfig
 		}
 
+		if os.Getenv("REDIS_USERNAME") != "" {
+			clusterOptions.Username = os.Getenv("REDIS_USERNAME")
+		}
+
+		
+		if os.Getenv("REDIS_PASSWORD") != "" {
+			clusterOptions.Password = os.Getenv("REDIS_PASSWORD")
+		}
+
 		log.Println("Initializing Redis Cluster Client")
 		return goredis.NewClusterClient(clusterOptions)
 	} else {
 		// Single Redis Instance Configuration
 		redisOptions := &goredis.Options{
 			Addr:     redisHosts[0], // Use first host for single instance
-			Password: os.Getenv("REDIS_PASSWORD"),
 			DB:       0, // Default database
 
 			// Connection Pool Configuration
@@ -105,6 +112,14 @@ func initRedisClient() goredis.UniversalClient {
 		// Add TLS Config if enabled
 		if useTLS {
 			redisOptions.TLSConfig = tlsConfig
+		}
+		if os.Getenv("REDIS_USERNAME") != "" {
+			redisOptions.Username = os.Getenv("REDIS_USERNAME")
+		}
+
+		
+		if os.Getenv("REDIS_PASSWORD") != "" {
+			redisOptions.Password = os.Getenv("REDIS_PASSWORD")
 		}
 
 		log.Println("Initializing Single Redis Client")
