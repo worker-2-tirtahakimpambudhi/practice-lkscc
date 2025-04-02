@@ -1,3 +1,3 @@
 - AWS CLI
-- Client the services ( RDS-> MYSQL CLIENT)
+- Client the services ( RDS -> MYSQL CLIENT)
 - For Go-Health App can binding to 80 port should be build to binary and execute with root user or sudo command

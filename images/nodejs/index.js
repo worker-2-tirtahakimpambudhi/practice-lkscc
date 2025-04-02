@@ -18,7 +18,9 @@ try {
     });
 
     const app = express();
-
+    app.get('/', (req,res) => {
+        res.sendStatus(200);
+    });
     app.post('/upload', multerClient.single('image'), async (req, res) => {
         try {
             if (!req.file) {
