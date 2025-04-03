@@ -79,8 +79,8 @@ read -p "Redis TLS Insecure (true/false, default: true): " REDIS_TLS_INSECURE
 REDIS_TLS_INSECURE=${REDIS_TLS_INSECURE:-true}
 
 log "4. Setting up application configuration"
-read -p "Application Port (default: 80): " PORT
-PORT=${PORT:-80}
+read -p "Application Port (default: 8080): " PORT
+PORT=${PORT:-8080}
 
 read -p "Application Host (default: 0.0.0.0): " HOST
 HOST=${HOST:-0.0.0.0}
@@ -122,6 +122,9 @@ validate_command "Installing Go dependencies"
 log "6. Building Go application"
 go build -v -o "$BINARY_PATH"
 validate_command "Building Go application"
+
+log "6a. Add permission to execute"
+sudo chmod +x "$BINARY_PATH"
 
 # Get absolute path of binary
 BINARY_PATH=$(realpath "$BINARY_PATH")
@@ -235,6 +238,10 @@ validate_command "Enabling ${SERVICE_NAME} service"
 
 sudo systemctl start ${SERVICE_NAME}.service
 validate_command "Starting ${SERVICE_NAME} service"
+
+log "Add redirect port $PORT to 80"
+sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port $PORT
+sudo  iptables -t nat --line-numbers -n -L
 
 # Check service status
 log "10. Checking service status"

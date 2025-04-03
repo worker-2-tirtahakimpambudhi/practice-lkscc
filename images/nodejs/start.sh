@@ -52,8 +52,8 @@ if [ -z "$BUCKET_NAME" ]; then
 fi
 
 log "3. Setting up application configuration"
-read -p "Application Port (default: 80): " PORT
-PORT=${PORT:-80}
+read -p "Application Port (default: 8080): " PORT
+PORT=${PORT:-8080}
 
 read -p "Application Host (default: 0.0.0.0): " HOST
 HOST=${HOST:-0.0.0.0}
@@ -103,6 +103,11 @@ EOF
 source ~/.bashrc
 validate_command "Exporting and sourcing AWS credentials"
 
+# Find the node binary path dynamically
+NODE_PATH=$(which node)
+validate_command "Finding Node.js binary path"
+log "Using Node.js from: ${NODE_PATH}"
+
 # Create systemd service file
 log "5. Creating systemd service file"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
@@ -113,7 +118,7 @@ Description=${SERVICE_NAME} Node.js Application
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/node ${APP_PATH}
+ExecStart=${NODE_PATH} ${APP_PATH}
 Restart=always
 User=${USER}
 Group=${GROUP}
@@ -159,6 +164,10 @@ validate_command "Enabling ${SERVICE_NAME} service"
 
 sudo systemctl start ${SERVICE_NAME}.service
 validate_command "Starting ${SERVICE_NAME} service"
+
+log "Add redirect port $PORT to 80"
+sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port $PORT
+sudo  iptables -t nat --line-numbers -n -L
 
 # Check service status
 log "7. Checking service status"

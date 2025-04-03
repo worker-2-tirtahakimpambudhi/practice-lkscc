@@ -1,0 +1,18 @@
+[Unit]
+Description=${SERVICE_NAME} Go Application
+After=network.target
+
+[Service]
+ExecStart=${BINARY_PATH}
+Restart=always
+User=${USER}
+Group=${GROUP}
+WorkingDirectory=${WORK_DIR}
+${ENV_VARS}
+Environment=KEY=Value
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=${SERVICE_NAME}
+
+[Install]
+WantedBy=multi-user.target
