@@ -1,77 +1,84 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: myapp
+  name: go-health-deployment
 spec:
   selector:
     matchLabels:
-      app: myapp
+      app: go-health
   template:
     metadata:
       labels:
-        app: myapp
+        app: go-health
     spec:
       containers:
-      - name: myapp
-        image: <Image>
+      - name: go-health
+        image: tirtahakimpambudhi/go-health
         resources:
           limits:
             memory: "128Mi"
             cpu: "500m"
         ports:
-        - containerPort: <Port>
+        - containerPort: 8080
+        envFrom:
+          - secretRef: 
+              name: 'go-health-secret'
+          - configMapRef:
+              name: 'go-health-configmap'
 
 ---
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: myapp
+  name: go-health-service
 spec:
   selector:
-    app: myapp
+    app: go-health
+  type: NodePort
   ports:
-  - port: <Port>
-    targetPort: <Target Port>
+  - port: 80
+    targetPort: 8080
+    nodePort: 30080
 
 --- 
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: myingress
+  name: go-health-ingress
   labels:
-    name: myingress
+    name: go-health-ingress
 spec:
   rules:
-  - host: <Host>
+  - host: go-health.local
     http:
       paths:
       - pathType: Prefix
         path: "/"
         backend:
           service:
-            name: <Service>
+            name: go-health-service
             port: 
-              number: <Port>
+              number: 80
 
 ---
 
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: myapp
+  name: go-health-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: myapp
-  minReplicas: 1
-  maxReplicas: 3
+    name: go-health-deployment
+  minReplicas: 2
+  maxReplicas: 4
   metrics:
   - type: Resource
     resource:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 50
+        averageUtilization: 70
