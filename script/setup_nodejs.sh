@@ -1,5 +1,5 @@
 #!/bin/bash
-
+echo "WARNING TO RUNNING ROOT SHOULD BE USER"
 sudo apt update -y
 
 sudo apt install curl -y
@@ -47,4 +47,5 @@ echo "Node.js version: $node_version"
 echo "NPM version: $npm_version"
 source ~/.profile
 echo "Setting Node Permission to Open Port"
+echo "Node bin path $(which node)"
 sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\``

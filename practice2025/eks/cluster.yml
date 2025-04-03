@@ -2,59 +2,47 @@ kind: ClusterConfig
 apiVersion: eksctl.io/v1alpha5
 
 metadata: 
-  name:  the-name-of-eks-cluster
-  region: region-eks-cluster # ap-southeast-2
-  version: '1.31' # Valid variants are: "1.23", "1.24", "1.25", "1.26", "1.27", "1.28", "1.29", "1.30" (default), "1.31".
-  # tags:
-  #   stage: production
+  name:  practice-eks-cluster
+  region: ap-southeast-2
+  version: '1.30' # Valid variants are: "1.23", "1.24", "1.25", "1.26", "1.27", "1.28", "1.29", "1.30" (default), "1.31".
+  tags:
+    stage: production
 
 nodeGroups:
   - name: nodeGroupOne 
-    instanceType: m5.large # or t3.large
+    instanceType: m4.large # or t3.large
     desiredCapacity: 2 # total the nodes to apply
-    # # Supported All Policies
-    # iam:
-    #   withAddonPolicies:
-    #     imageBuilder: true
-    #     autoScaler: true
-    #     externalDNS: true
-    #     certManager: true
-    #     appMesh: true
-    #     appMeshPreview: true
-    #     ebs: true
-    #     fsx: true
-    #     efs: true
-    #     awsLoadBalancerController: true
-    #     xRay: true
-    #     cloudWatch: true
+    # Supported All Policies
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        autoScaler: true
+        externalDNS: true
+        certManager: true
+        appMesh: true
+        appMeshPreview: true
+        ebs: true
+        fsx: true
+        efs: true
+        awsLoadBalancerController: true
+        xRay: true
+        cloudWatch: true
 
 # If the vpc if exists
-# vpc:
-#   id: "vpc-id"
-#   subnets:
-#     private:
-#       ap-southeast-2a:
-#           id: "subnet-0ff156e0c4a6d300c"
-#       ap-southeast-2c:
-#           id: "subnet-0426fb4a607393184"
-#     public:
-#       ap-southeast-2a:
-#           id: "subnet-0153e560b3129a696"
-#       ap-southeast-2c:
-#           id: "subnet-009fa0199ec203c37"
-#   # clusterEndpoints:
-#   #   publicAccess:  <true|false>
-#   #   privateAccess: <true|false>
-#   # nat:
-#   #   gateway:  HighlyAvailable # other options: Disable, Single (default)
+vpc:
+  clusterEndpoints:
+    publicAccess:  true
+    privateAccess: true
+  nat:
+    gateway:  Single # other options: Disable, Single (default)
 
-# secretsEncryption:
-#   # KMS key used for envelope encryption of Kubernetes secrets
-#   keyARN: arn:aws:kms:us-west-2:<account>:key/<key>
+secretsEncryption:
+  # KMS key used for envelope encryption of Kubernetes secrets
+  keyARN: arn:aws:kms:ap-southeast-2:277789128961:key/96148e30-3229-4d94-9e30-3492f1e68883
 
-# cloudWatch:
-#   clusterLogging:
-#     enableTypes: ["*"]
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["*"]
 
 # fargateProfiles:
 #   - name: fp-default
