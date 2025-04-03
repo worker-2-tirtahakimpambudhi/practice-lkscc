@@ -44,3 +44,6 @@ source ~/.profile
 
 echo "Setting Go Permission to Open Port"
 sudo setcap cap_net_bind_service=+ep `readlink -f \`which go\``
+ 
+echo "RECOMMEND TO RUNNING THIS COMMAND AGAIN 'echo export PATH=$HOME/go/bin:/usr/local/go/bin:$PATH >> ~/.profile
+'"
