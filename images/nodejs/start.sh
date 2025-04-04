@@ -129,19 +129,19 @@ WorkingDirectory=${WORK_DIR}
 Environment=NODE_ENV=production
 Environment=PORT=${PORT}
 Environment=HOST=${HOST}
-Environment=AWS_REGION=${REGION}
-Environment=AWS_ACCESS_KEY_ID=${ACCESS_KEY}
-Environment=AWS_SECRET_ACCESS_KEY=${SECRET_KEY}
+Environment=REGION=${REGION}
+Environment=ACCESS_KEY=${ACCESS_KEY}
+Environment=SECRET_KEY=${SECRET_KEY}
 "
 
 # Add SESSION_TOKEN environment only if it's not empty
 if [ ! -z "$SESSION_TOKEN" ]; then
-    SERVICE_CONTENT="${SERVICE_CONTENT}Environment=AWS_SESSION_TOKEN=${SESSION_TOKEN}
+    SERVICE_CONTENT="${SERVICE_CONTENT}Environment=SESSION_TOKEN=${SESSION_TOKEN}
 "
 fi
 
 # Complete the service file content
-SERVICE_CONTENT="${SERVICE_CONTENT}Environment=AWS_BUCKET_NAME=${BUCKET_NAME}
+SERVICE_CONTENT="${SERVICE_CONTENT}Environment=BUCKET_NAME=${BUCKET_NAME}
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=${SERVICE_NAME}
