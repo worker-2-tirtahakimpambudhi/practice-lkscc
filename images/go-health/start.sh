@@ -204,8 +204,8 @@ Environment=REDIS_TLS_INSECURE=${REDIS_TLS_INSECURE}
 Environment=PORT=${PORT}
 Environment=HOST=${HOST}"
 
-# Write service file using heredoc
-sudo cat > $SERVICE_FILE <<- EOM
+# Write service file using sudo tee
+sudo tee $SERVICE_FILE > /dev/null <<- EOM
 [Unit]
 Description=${SERVICE_NAME} Go Application
 After=network.target
@@ -244,6 +244,7 @@ validate_command "Starting ${SERVICE_NAME} service"
 
 log "Add redirect port $PORT to 80"
 sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port $PORT
+sudo iptables -t nat -A OUTPUT -p tcp --dport 80 -j REDIRECT --to-port $PORT
 sudo iptables-save | sudo tee /etc/iptables/rules.v4 > /dev/null
 sudo  iptables -t nat --line-numbers -n -L
 
