@@ -170,6 +170,7 @@ validate_command "Starting ${SERVICE_NAME} service"
 
 log "Add redirect port $PORT to 80"
 sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port $PORT
+sudo iptables -t nat -A OUTPUT -p tcp --dport 80 -j REDIRECT --to-port $PORT
 sudo iptables-save | sudo tee /etc/iptables/rules.v4 > /dev/null
 sudo  iptables -t nat --line-numbers -n -L
 
