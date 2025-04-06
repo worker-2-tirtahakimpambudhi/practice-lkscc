@@ -6,7 +6,7 @@ metadata:
     stage: dev
 data:
   MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: '1'
-  MARIADB_DATABASE: wordpress
+  MARIADB_DATABASE: gohealthdb
   # MARIADB_ROOT_HOST : '%' default is % for remote host
 
 
