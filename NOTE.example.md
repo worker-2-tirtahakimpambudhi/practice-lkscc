@@ -97,6 +97,9 @@ aws_secret_access_key=
 aws_session_token=
 ```
 
+## WARNING 
+- THE EBS Encryption cannot attach to KMS CMK 
+
 ## WARNING FOR LKS LARAVEL APP
 - Mount EFS
 - change redis default and cache config add the scheme to tls
