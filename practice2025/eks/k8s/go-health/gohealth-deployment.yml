@@ -13,18 +13,18 @@ spec:
     spec:
       containers:
       - name: gohealth-container
-        image: tirtahakimpambudhi/go-health
+        image: 277789128961.dkr.ecr.us-east-1.amazonaws.com/go-health:latest
         resources:
           limits:
             memory: "256Mi"
             cpu: "100m"
         ports:
-        - containerPort: 80
-      envFrom:
-        - configMapRef:
-            name: gohealth-configmap
-        - secretRef: 
-            name: gohealth-secret 
+        - containerPort: 8080
+        envFrom:
+          - configMapRef:
+              name: gohealth-configmap
+          - secretRef: 
+              name: gohealth-secret 
 ---
 
 apiVersion: v1
@@ -36,7 +36,7 @@ spec:
     app: gohealth-pod
   ports:
   - port: 80
-    targetPort: 80
+    targetPort: 8080
 
 --- 
 
@@ -47,9 +47,10 @@ metadata:
   labels:
     name: gohealth-ingress
   annotations:
-    alb.ingress.kubernetes.io/load-balancer-name: "alb-ingress"
+    alb.ingress.kubernetes.io/load-balancer-name: "go-alb-ingress"
     alb.ingress.kubernetes.io/ip-address-type: ipv4
     alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/healthcheck-path: /health
     alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
     alb.ingress.kubernetes.io/healthcheck-port: traffic-port
     alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
@@ -61,7 +62,7 @@ metadata:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
 
 spec:
-  ingressClassName: ingres-alb-class
+  ingressClassName: ingress-alb-class
   rules:
   - http:
       paths:

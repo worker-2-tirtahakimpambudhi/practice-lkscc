@@ -9,3 +9,132 @@
 - KMS EKS Should be Change and Enable it
 - Dont forgot apply ingress aws load balancer
 - [IRSA](https://dev.to/vinod827/secure-s3-access-for-aws-eks-pods-via-iam-role-2ena)
+
+
+# Warning
+- Launch Template should be generate from AMI , Dont try from instance
+
+- The name of ingress should be different
+
+- Pod have access The s3 can work with session token with command 
+```bash 
+    aws sts get-session-token--duration-seconds 3600
+```
+- Install aws load balancer eks with command
+```bash
+helm install aws-load-balancer-controller eks aws-load-balancer-controller \                          
+-n kube-system \
+--set clusterName=eks-cluster \
+--set serviceAccount.create=true
+```
+
+- Create Ingress Class with command 
+```bash
+kubectl apply -f ./practice2025/eks/k8s/ingress-alb-class.yml 
+```
+# Security Group
+- Security Group for RDS and Elasticache
+
+RDS-NODE-ACCESS-SG:
+
+    INBOUND-ROLES:
+        -
+    OUTBOUND-ROLES:
+        - anywhere
+Attach to EC2 EKS NODES
+
+RDS-SG:
+
+    INBOUND-ROLES:
+        - MySQL/Aurora -> RDS-NODE-ACCESS
+    OUTBOUND-ROLES:
+        - anywhere
+Attach to RDS Service
+
+ELC-NODE-ACCESS-SG:
+
+    INBOUND-ROLES:
+        -
+    OUTBOUND-ROLES:
+        - anywhere
+Attach to EC2 EKS NODES
+
+ELC-SG:
+
+    INBOUND-ROLES:
+        - TCP 6379 -> ELC-NODE-ACCESS-SG
+    OUTBOUND-ROLES:
+        - anywhere    
+Attach to Elasticache Service
+
+# IAM
+
+Policy Minimal For EKS Question LKS:
+
+    - AmazonEC2ContainerRegistryFullAccess 
+    - AmazonS3FullAccess
+    - AmazonEC2FullAccess 
+    - AmazonRDSFullAccess
+    - IAMFullAccess 
+    - AmazonElastiCacheFullAccess 
+    - AmazonVPCFullAccess 
+    - AWSCloudFormationFullAccess 
+    - EksFullAccess (Custom)
+    - AWSKeyManagementServicePowerUser
+
+Roles for AWS Services:
+
+    - FrontEnd(NodeJS)
+        - AmazonS3FullAccess
+    
+    - BackEnd(Golang)
+        - AmazonRDSFullAccess
+        - AmazonElastiCacheFullAccess
+
+
+### Policy AWS ALB
+```bash
+curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.7.2/docs/install/iam_policy.json
+
+
+# Requirement account have iam policy full access
+aws iam create-policy \
+--policy-name AWSLoadBalancerControllerIAMPolicy \
+--policy-document file://policy/iam_policy.json
+```
+
+
+# WORKFLOW EXECUTION LKS Question 
+
+## EKS (Production)
+
+1. Create Custom KMS for EKS
+2. Create Cluster by eksctl 
+3. While waiting for the finished cluster EKS do Create
+ - Security Group(RDS,Elasticache)
+    -> RDS(attach the SG) 
+    -> Elasticache(attach the SG)
+ - S3 
+ - ECR(Front End and Back End) 
+    -> Build Application (Front End and Back End) 
+        -> re tag the image to ECR image and Push Image Result re tag ECR
+4. Configuration the App 
+
+## Autoscalling Based (Development)
+1. VPC (Single NAT and S3 Endpoint)
+2. Roles (Front End and Back End)
+3. Security Group
+   - ELB (Front End and Back End)
+   - APP (Front End and Back End)
+   - RDS (Back End)
+   - Elastic Cache (Back End)
+4. Elastic Cache (t4g.micro)
+5. RDS (Free tier)
+6. S3 With Policies GetObject and PutObject and Resource bucket-name/*
+7. EC2 (SSH,Front End and Back End) And Installing Application with Try successfully or failed and debugging if failed
+8. Target Groups (Front End and Back End)
+9. ELB (Front End and Back End)
+10. Try ELB 
+11. AMI (Front End and Back End)
+12. Launch Template
+13. Autoscalling with polices cpu utilization

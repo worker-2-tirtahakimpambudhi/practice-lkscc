@@ -2,16 +2,17 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: gohealth-configmap
-  stage: prod
+  labels:
+    stage: prod
 data:
-  MYSQL_HOST: "your-host"
-  MYSQL_PORT: "your-database-rds"
-  MYSQL_DATABASE: "your-database" 
+  MYSQL_HOST: ""
+  MYSQL_PORT: "3306"
+  MYSQL_DATABASE: "" 
 
   REDIS_CLUSTER: "false"
-  REDIS_HOSTS: "your-redis-host:6379"
+  REDIS_HOSTS: ""
   REDIS_TLS: "true"
   REDIS_TLS_INSECURE: "true" 
 
-  PORT: "80"
+  PORT: "8080"
   HOST: "0.0.0.0"
