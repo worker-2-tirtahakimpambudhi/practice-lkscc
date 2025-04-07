@@ -9,7 +9,7 @@ spec:
   - ReadWriteOnce
   storageClassName: local-storage
   local:
-    path: /data/volumes/wordpress/mysql
+    path: /data/volumes/go-health/mysql
   nodeAffinity:
     required:
       nodeSelectorTerms:
