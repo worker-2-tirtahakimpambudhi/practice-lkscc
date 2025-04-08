@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-configmap
+  labels:
+    name: redis-configmap
+data:
+  REDIS_PORT: '6739'
+  REDIS_DATABASES: '16'
