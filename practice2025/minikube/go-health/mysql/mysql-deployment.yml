@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-statefulset
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: db
+  serviceName: "mysql-service"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: mysql
+        image: mariadb:latest
+        ports:
+        - containerPort: 3306
+          name: mysql-port
+        volumeMounts:
+        - name: mysql-volume 
+          mountPath: /var/lib/mysql
+        - name: config-volume
+          mountPath: /etc/mysql/conf.d
+        envFrom:
+          - configMapRef:
+              name: mysql-config-map
+          - secretRef:
+              name: mysql-secret
+      volumes:
+        - name: config-volume
+          configMap:
+            name: mysql-config
+        - name: mysql-volume 
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "mysql-service"
+  namespace: default
+spec:
+  selector:
+    app: db
+  type: NodePort 
+  ports:
+  - name: "mysql-service-port"
+    protocol: TCP
+    port: 3306
+    targetPort: 3306
+    nodePort: 30004 
