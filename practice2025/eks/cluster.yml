@@ -2,15 +2,15 @@ kind: ClusterConfig
 apiVersion: eksctl.io/v1alpha5
 
 metadata: 
-  name:  practice-eks-cluster
-  region: ap-southeast-2
+  name:  $CLUSTER_NAME # eks-cluster
+  region: us-east-2
   version: '1.30' # Valid variants are: "1.23", "1.24", "1.25", "1.26", "1.27", "1.28", "1.29", "1.30" (default), "1.31".
   tags:
     stage: production
 
 nodeGroups:
   - name: nodeGroupOne 
-    instanceType: m4.large # or t3.large
+    instanceType: $INSTANCE_TYPE # or t3.large
     desiredCapacity: 2 # total the nodes to apply
     # Supported All Policies
     iam:
@@ -38,7 +38,7 @@ vpc:
 
 secretsEncryption:
   # KMS key used for envelope encryption of Kubernetes secrets
-  keyARN: arn:aws:kms:ap-southeast-2:277789128961:key/96148e30-3229-4d94-9e30-3492f1e68883
+  keyARN: $KMS_KEY_ARN # arn:aws:kms:us-east-2:123456789012:key/alias/eksctl-demo-cluster
 
 cloudWatch:
   clusterLogging:
