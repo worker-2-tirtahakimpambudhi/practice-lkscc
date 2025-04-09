@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-statefulset
+spec:
+  selector:
+    matchLabels:
+      app: redis-db
+  serviceName: redis-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis-db
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - image:  redis
+        name:  redis-container
+        envFrom:
+          - secretRef:  
+              name: 'redis-secret' 
+          - configMapRef: 
+              name: 'redis-configmap'       
+        ports:
+        - containerPort:  6739
+          name:  my-name
+        volumeMounts:
+        - mountPath: /data
+          name: redis-volume
+      volumes:
+        - name: redis-volume
+          persistentVolumeClaim:
+            claimName: redis-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+spec:
+  selector:
+    app: redis-db
+  type: NodePort
+  ports:
+  - port: 6739
+    targetPort: 6739
+    nodePort: 30039
+
