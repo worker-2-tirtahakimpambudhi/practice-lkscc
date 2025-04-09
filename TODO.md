@@ -217,3 +217,18 @@ Check the App with command
 ```
 curl -s -w "\nHTTP Status: %{http_code}\n" http://example.com
 ```
+
+Permission Bucket Get Object
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::bucket-lksdiy2025/*"
+    }
+  ]
+}
+
+```
