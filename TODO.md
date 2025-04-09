@@ -212,3 +212,8 @@ docker buildx build \
   --push \
   .
 ```
+
+Check the App with command 
+```
+curl -s -w "\nHTTP Status: %{http_code}\n" http://example.com
+```
