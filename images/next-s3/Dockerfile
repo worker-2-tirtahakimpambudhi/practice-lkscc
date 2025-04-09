@@ -69,6 +69,7 @@ ENV AWS_ACCESS_KEY_ID="" \
     AWS_REGION="us-east-1" \
     AWS_BUCKET_NAME="" \
     NEXT_PUBLIC_BASE_URL=http://${HOSTNAME}:${PORT} 
+    # Domain name or IP address of the server
     
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
