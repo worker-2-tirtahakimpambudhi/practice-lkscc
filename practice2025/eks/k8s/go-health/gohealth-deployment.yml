@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: gohealth-container
-        image: 277789128961.dkr.ecr.us-east-2.amazonaws.com/go-health
+        image: $IMAGE_NAME
         resources:
           limits:
             memory: "128Mi"
@@ -47,7 +47,7 @@ metadata:
   labels:
     name: gohealth-ingress
   annotations:
-    alb.ingress.kubernetes.io/load-balancer-name: lksdiy2025-backend
+    alb.ingress.kubernetes.io/load-balancer-name: $LOAD_BALANCER_NAME
     alb.ingress.kubernetes.io/ip-address-type: ipv4
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/healthcheck-path: /health # /health
