@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="config.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Student Management</h1>
+
+        <form id="studentForm">
+            <input type="text" id="name" placeholder="Name" required>
+            <input type="text" id="school" placeholder="School" required>
+            <input type="file" id="photo">
+            <button type="submit">Add Student</button>
+        </form>
+        
+        <h2>Student List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>School</th>
+                    <th>Photo</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="studentList"></tbody>
+        </table>
+    </div>
+
+    <script>
+        document.getElementById("studentForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            formData.append("name", document.getElementById("name").value);
+            formData.append("school", document.getElementById("school").value);
+            const photoInput = document.getElementById("photo");
+            if (photoInput.files.length > 0) {
+                formData.append("photo", photoInput.files[0]);
+            }
+            
+            axios.post(`${CONFIG.BACKEND_BASE_URL}/students`, formData)
+                .then(response => {
+                    alert("Student added successfully!");
+                    loadStudents();
+                    document.getElementById("studentForm").reset();
+                })
+                .catch(error => alert("Error adding student"));
+        });
+
+        function loadStudents() {
+            axios.get(`${CONFIG.BACKEND_BASE_URL}/students`)
+                .then(response => {
+                    console.log("API Response:", response.data);
+                    const students = response.data;
+                    const studentList = document.getElementById("studentList");
+                    studentList.innerHTML = "";
+                    students.forEach(student => {
+                        const photoSrc = student.photo && student.photo.trim() 
+                            ? student.photo 
+                            : "https://upload.wikimedia.org/wikipedia/commons/0/03/Twitter_default_profile_400x400.png";
+                        const row = `<tr>
+                            <td>${student.id}</td>
+                            <td>${student.name}</td>
+                            <td>${student.school}</td>
+                            <td><img src="${photoSrc}" width="50" alt="No Image"></td>
+                            <td><button class="delete-btn" onclick="deleteStudent(${student.id})">Delete</button></td>
+                        </tr>`;
+                        studentList.innerHTML += row;
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching students:", error);
+                    alert("Error fetching students: " + error.message);
+                });
+        }
+
+        function deleteStudent(id) {
+            axios.delete(`${CONFIG.BACKEND_BASE_URL}/students/${id}`)
+                .then(response => {
+                    alert("Student deleted successfully!");
+                    loadStudents();
+                })
+                .catch(error => alert("Error deleting student"));
+        }
+
+        loadStudents();
+    </script>
+</body>
+</html>
