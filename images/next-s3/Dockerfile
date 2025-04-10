@@ -66,9 +66,9 @@ ENV HOSTNAME="0.0.0.0"
 ENV AWS_ACCESS_KEY_ID="" \
     AWS_SECRET_ACCESS_KEY="" \
     AWS_SESSION_TOKEN="" \
-    AWS_REGION="us-east-1" \
+    AWS_REGION="" \
     AWS_BUCKET_NAME="" \
-    NEXT_PUBLIC_BASE_URL=http://${HOSTNAME}:${PORT} 
+    NEXT_PUBLIC_BASE_URL=""
     # Domain name or IP address of the server
     
 # server.js is created by next build from the standalone output
