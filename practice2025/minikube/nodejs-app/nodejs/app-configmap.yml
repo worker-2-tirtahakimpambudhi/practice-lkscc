@@ -4,7 +4,6 @@ metadata:
   name: app-configmap
 data:
   REGION: us-east-1
-  BUCKET_NAME: nodejs-bucket 
-  ENDPOINT: 'localstack-service.namespace.svc.cluster.local'
-  PORT: "3000"
+  BUCKET_NAME: bucket-tirtahakimp35
+  PORT: '3000'
   
