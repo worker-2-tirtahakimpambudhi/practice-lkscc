@@ -1,0 +1,2 @@
+- AWS CLI
+- Client the services ( RDS-> MYSQL CLIENT)
