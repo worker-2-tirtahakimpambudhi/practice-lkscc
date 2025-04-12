@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  app:
+    container_name: nodejs-s3-api
+    depends_on:
+      - localstack
+    networks:
+      - localstack-net
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3030:3000
+    env_file:
+      - ./.env.app
+
+
+  localstack:
+    container_name: "localstack"
+    image: localstack/localstack
+    networks:
+      - localstack-net
+    ports:
+      - "4566:4566"            # LocalStack Gateway
+      - "4510-4559:4510-4559"  # external services port range
+    env_file:
+      - ./.env.localstack
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+networks:
+  localstack-net:
+    name: localstack-net
