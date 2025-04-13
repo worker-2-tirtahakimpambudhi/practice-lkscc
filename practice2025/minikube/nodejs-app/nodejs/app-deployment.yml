@@ -20,7 +20,7 @@ spec:
             cpu: "500m"
         ports:
         - containerPort: 3000
-          name: nodejs-api-s3-port
+          name: api-s3-port
         envFrom:
           - secretRef: 
               name: 'app-secret'
@@ -42,4 +42,47 @@ spec:
     protocol: TCP
     port: 3000
     targetPort: 3000
-    nodePort: 33000
+    nodePort: 31000
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  labels:
+    name: app-ingress
+spec:
+  rules:
+  - host: nodejs-app
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/nodejs-app"
+        backend:
+          service:
+            name: app-service
+            port: 
+              number: 3000
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: app-autoscaling
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: app-deployment
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+
