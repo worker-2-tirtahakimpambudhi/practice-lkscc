@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gohealth-configmap
+  labels:
+    stage: prod
+data:
+  MYSQL_HOST: ""
+  MYSQL_PORT: "3306"
+  MYSQL_DATABASE: "lksdiy2025" 
+
+  REDIS_CLUSTER: "false"
+  REDIS_HOSTS: ""
+  REDIS_TLS: "true"
+  REDIS_TLS_INSECURE: "true" 
+
+  PORT: "8080"
+  HOST: "0.0.0.0"
