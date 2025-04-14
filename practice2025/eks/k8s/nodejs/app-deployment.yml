@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: nodejs-api-s3
-        image: tirtahakimpambudhi/nodejs-s3-app
+        image: $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/nodejs-s3-app:latest
         resources:
           limits:
             memory: "128Mi"
