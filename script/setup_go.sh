@@ -1,6 +1,10 @@
 #!/bin/bash
 
-read -p "Enter Golang Version (default: 1.24.1)" input_go_version
+sudo apt update -y
+
+sudo apt install wget -y
+
+read -p "Enter Golang Version (default: 1.24.1) " input_go_version
 
 GO_VERSION=${input_go_version:-"1.24.1"}
 
@@ -36,3 +40,4 @@ source ~/.profile
 
 go_version=$(go version)
 echo "Go Version $go_version"
+source ~/.profile
