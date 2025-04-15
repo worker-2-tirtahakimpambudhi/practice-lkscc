@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      serviceAccountName: demo-svca-v3
+      initContainers:
+      - name: demo-aws-cli
+        image: amazon/aws-cli
+        command: ['aws', 's3', 'cp', 's3://bucket-tirtahakimp35/test.txt', '-']
+      containers:
+      - name: my-app
+        image: nginx
