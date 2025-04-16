@@ -1,6 +1,10 @@
 #!/bin/bash
 
-read -p "Enter NodeJS Version (default: 22)" input_nodejs_version
+sudo apt update -y
+
+sudo apt install curl -y
+
+read -p "Enter NodeJS Version (default: 22) " input_nodejs_version
 
 NODEJS_VERSION=${input_nodejs_version:-"22"}
 
@@ -33,9 +37,10 @@ export NVM_DIR="$HOME/.nvm"
 # Install Node.js
 nvm install $NODEJS_VERSION || handle_error "Node.js installation"
 validate_command "Node.js installation"
-
+source ~/.profile
 # Verify Node.js and npm
 node_version=$(node -v)
 npm_version=$(npm -v)
+source ~/.profile
 echo "Node.js version: $node_version"
 echo "NPM version: $npm_version"
