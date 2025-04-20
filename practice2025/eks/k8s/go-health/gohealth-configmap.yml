@@ -7,7 +7,7 @@ metadata:
 data:
   MYSQL_HOST: ""
   MYSQL_PORT: "3306"
-  MYSQL_DATABASE: "" 
+  MYSQL_DATABASE: "lksdiy2025" 
 
   REDIS_CLUSTER: "false"
   REDIS_HOSTS: ""
