@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: next-configmap
+data:
+  AWS_REGION: "your-region" # Replace with your actual region
+  AWS_BUCKET_NAME: "your-bucket-name" # Replace with your actual bucket name
+  HOSTNAME: "0.0.0.0"
+  PORT: "3000"
+  # NEXT_PUBLIC_BASE_URL: "http://frontend.lkscloudcomputing.cloud"
