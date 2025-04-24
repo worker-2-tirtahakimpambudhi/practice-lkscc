@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: nodejs-api-s3
-        image: $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/nodejs-s3-app:latest
+        image: 277789128961.dkr.ecr.us-east-1.amazonaws.com/nodejs-s3-app
         resources:
           limits:
             memory: "128Mi"
@@ -67,7 +67,7 @@ metadata:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
 
 spec:
-  ingressClassName: ingres-alb-class
+  ingressClassName: ingress-alb-class
   rules:
   - http:
       paths:
@@ -80,6 +80,10 @@ spec:
               number: 80
 
 ---
+### Horizontal Pod Autoscaler (HPA) for CPU utilization
+# This HPA will scale the number of pods between 2 and 4 based on CPU utilization.
+# Make sure to adjust the averageUtilization value based on your needs.
+### Optional
 
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
