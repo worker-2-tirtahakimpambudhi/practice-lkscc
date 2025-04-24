@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: next-deployment
+spec:
+  selector:
+    matchLabels:
+      app: next-pod
+  template:
+    metadata:
+      labels:
+        app: next-pod 
+    spec:
+      containers:
+      - name: next-container
+        image: $IMAGE_NAME 
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
+        envFrom:
+          - configMapRef:
+              name: next-configmap
+          - secretRef: 
+              name: next-secret
+        
+--- 
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: next-service
+spec:
+  selector:
+    app: next-pod
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3000
+
+--- 
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: next-ingress
+  labels:
+    name: next-ingress
+  annotations:
+    alb.ingress.kubernetes.io/load-balancer-name: $LOAD_BALANCER_NAME
+    alb.ingress.kubernetes.io/ip-address-type: ipv4
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/healthcheck-path: / # /health
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '3'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '5'
+    alb.ingress.kubernetes.io/success-codes: '200,201,202,300,301,302'
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+
+spec:
+  ingressClassName: ingress-alb-class
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: next-service
+            port: 
+              number: 80
+
+--- 
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: next-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: next-deployment
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
