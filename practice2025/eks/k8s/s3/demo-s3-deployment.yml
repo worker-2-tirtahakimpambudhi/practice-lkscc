@@ -1,21 +1,18 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Pod
 metadata:
-  name: nginx
+  labels:
+    run: my-pod
+  name: my-pod
+  namespace: production
 spec:
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      serviceAccountName: demo-svca-v3
-      initContainers:
-      - name: demo-aws-cli
-        image: amazon/aws-cli
-        command: ['aws', 's3', 'cp', 's3://bucket-tirtahakimp35/test.txt', '-']
-      containers:
-      - name: my-app
-        image: nginx
+  serviceAccountName: s3-service-account-v3
+  initContainers:
+  - image: amazon/aws-cli
+    name: my-aws-cli
+    command: ['aws', 's3', 'ls', 's3://bucket-tirtahakimp35/']
+  containers:
+  - image: nginx
+    name: my-pod
+    ports:
+    - containerPort: 80
