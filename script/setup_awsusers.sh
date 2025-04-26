@@ -98,7 +98,7 @@ fi
 log "Attaching custom policy $CUSTOM_POLICY_NAME..."
 aws iam attach-user-policy --user-name "$AWS_USERS" --policy-arn "$CUSTOM_POLICY_ARN"
 
-# Generate access key for AWS CLI usage
+# Create access key for AWS CLI usage
 log "Creating access key for user $AWS_USERS..."
 ACCESS_KEY_OUTPUT=$(aws iam create-access-key --user-name "$AWS_USERS" --output json)
 
@@ -107,11 +107,31 @@ AWS_SECRET_ACCESS_KEY=$(echo "$ACCESS_KEY_OUTPUT" | jq -r '.AccessKey.SecretAcce
 
 log "Access key created successfully."
 
-echo "================ AWS CLI Credentials ================"
+# Enable AWS Console access
+read -s -p "Set a password for AWS Console login (input hidden): " CONSOLE_PASSWORD
+echo ""
+
+log "Enabling AWS Console access for user $AWS_USERS..."
+aws iam create-login-profile \
+  --user-name "$AWS_USERS" \
+  --password "$CONSOLE_PASSWORD" \
+  --password-reset-required
+
+# Get AWS account ID for console login URL
+ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
+# Output credentials and login info
+echo ""
+echo "================ AWS CLI Credentials =================="
 echo "aws_access_key_id:     $AWS_ACCESS_KEY_ID"
 echo "aws_secret_access_key: $AWS_SECRET_ACCESS_KEY"
-echo "====================================================="
+echo "========================================================"
 
-log "You can now use these credentials with: aws configure"
+echo ""
+echo "================ AWS Console Login Info ================"
+echo "Console login URL: https://$ACCOUNT_ID.signin.aws.amazon.com/console"
+echo "Username: $AWS_USERS"
+echo "Password: (the one you just entered)"
+echo "========================================================"
 
 log "Setup completed successfully."
