@@ -21,10 +21,14 @@
     aws sts get-session-token--duration-seconds 3600
 ```
 - Install aws load balancer eks with command
+
+### Add EKS Repository Helm
 ```bash
-helm install aws-load-balancer-controller eks aws-load-balancer-controller \                          
+helm repo add eks https://aws.github.io/eks-charts
+helm repo update eks
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
 -n kube-system \
---set clusterName=eks-cluster \
+--set clusterName=my-k8s-cluser \
 --set serviceAccount.create=true
 ```
 
