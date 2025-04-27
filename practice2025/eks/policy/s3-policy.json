@@ -4,6 +4,9 @@
       {
         "Sid": "AllowRoleAccessToS3",
         "Effect": "Allow",
+        "Principal": {
+          "AWS": "arn:aws:iam::123456789012:role/YourRoleName"
+        },
         "Action": ["s3:GetObject", "s3:PutObject"],
         "Resource": "arn:aws:s3:::$BUCKRET_NAME/*"
       }
