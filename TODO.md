@@ -5,3 +5,7 @@
 
 - When create the image from ec2 warning to reboot instance because the app can be shutdown
 
+- About Name of Cluster and Type
+- KMS EKS Should be Change and Enable it
+- Dont forgot apply ingress aws load balancer
+- [IRSA](https://dev.to/vinod827/secure-s3-access-for-aws-eks-pods-via-iam-role-2ena)
