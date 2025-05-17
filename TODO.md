@@ -163,6 +163,7 @@ aws iam create-policy \
 2. Roles (Front End and Back End)
 3. Security Group
    - ELB (Front End and Back End)
+   - SSH
    - APP (Front End and Back End)
    - RDS (Back End)
    - Elastic Cache (Back End)
