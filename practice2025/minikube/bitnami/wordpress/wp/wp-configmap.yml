@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wp-configmap
+  labels:
+    stage: dev
+data:
+  WORDPRESS_DATABASE_NAME: wordpress
+  WORDPRESS_DATABASE_HOST: 'mysql-service.default.svc.cluster.local'
