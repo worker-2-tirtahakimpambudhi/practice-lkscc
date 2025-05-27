@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  wp-deployment
+  labels:
+    name:  wp-deployment
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  replicas: 2
+  revisionHistoryLimit: 15
+  selector: 
+    matchLabels:
+      app: cms
+  template:
+    metadata:
+      labels:
+        app: cms
+    spec:
+      containers:
+      - image: bitnami/wordpress:latest
+        name: wp-container
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: "220m"
+            memory: "500M"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 90
+          timeoutSeconds: 10
+        startupProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+        ports:
+        - containerPort:  8080
+          name:  wp-port
+        volumeMounts:
+        - mountPath: /bitnami/wordpress
+          name: wp-volume
+        envFrom:
+          - configMapRef:
+              name: wp-configmap
+          - secretRef:
+              name: wp-secret
+      volumes:
+        - name: wp-volume
+          persistentVolumeClaim:
+            claimName: wp-pvc
+      
+--- 
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: wp-service
+  namespace: default
+spec:
+  selector:
+    app: cms
+  type: NodePort
+  ports:
+  - name: wp-service-port
+    protocol: TCP
+    port: 80
+    targetPort: 8080
+    # If you set the `spec.type` field to `NodePort` and you want a specific port number,
+    # you can specify a value in the `spec.ports[*].nodePort` field.
+    nodePort: 30003
