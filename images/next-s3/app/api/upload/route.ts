@@ -12,7 +12,9 @@ export async function POST(request: Request) {
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         ...(process.env.AWS_SESSION_TOKEN ? { sessionToken: process.env.AWS_SESSION_TOKEN } : {}),
       },
-      region: process.env.AWS_REGION 
+      region: process.env.AWS_REGION,
+      ...(process.env.AWS_ENDPOINT ? { endpoint: process.env.AWS_ENDPOINT } : {}),
+      ...(process.env.AWS_FORCE_PATH_STYLE ? { forcePathStyle: true } : {}),
     })
     const { url, fields } = await createPresignedPost(client, {
       Bucket: process.env.AWS_BUCKET_NAME,
