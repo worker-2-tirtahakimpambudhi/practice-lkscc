@@ -1,0 +1,33 @@
+
+services:
+  app:
+    container_name: frontend
+    depends_on:
+      - localstack
+    networks:
+      - localstack-frontend-net
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8080
+    env_file:
+      - ./.env.app
+
+
+  localstack:
+    container_name: "localstack-frontend"
+    image: localstack/localstack
+    networks:
+      - localstack-frontend-net
+    ports:
+      - "4566:4566"            # LocalStack Gateway
+      - "4510-4559:4510-4559"  # external services port range
+    env_file:
+      - ./.env.localstack
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+networks:
+  localstack-frontend-net:
+    name: localstack-frontend-net
