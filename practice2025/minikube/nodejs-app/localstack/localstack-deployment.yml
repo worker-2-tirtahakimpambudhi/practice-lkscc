@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: localstack-deployment
+  labels:
+    app: localstack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: localstack
+  template:
+    metadata:
+      labels:
+        app: localstack
+    spec:
+      containers:
+      - name: localstack
+        image: localstack/localstack
+        env:
+        - name: DEBUG
+          value: "0"
+        ports:
+        - containerPort: 4566
+        - containerPort: 4510
+        volumeMounts:
+        - name: docker-socket
+          mountPath: /var/run/docker.sock
+      volumes:
+      - name: docker-socket
+        hostPath:
+          path: /var/run/docker.sock
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: localstack
+spec:
+  selector:
+    app: localstack
+  ports:
+  - name: gateway
+    port: 4566
+    targetPort: 4566
+    protocol: TCP
+  - name: external-services
+    port: 4510
+    targetPort: 4510
+    protocol: TCP
+    # Note: This service exposes a range of ports (4510-4559)
+    # You might need to create additional NodePort or LoadBalancer services 
+    # or use a more complex port mapping approach in Kubernetes
+  type: NodePort
