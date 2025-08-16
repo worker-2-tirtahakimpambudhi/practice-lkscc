@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-configmap
+data:
+  REGION: us-east-1
+  BUCKET_NAME: nodejs-bucket 
+  ENDPOINT: 'localstack-service.namespace.svc.cluster.local'
+  PORT: "3000"
+  
