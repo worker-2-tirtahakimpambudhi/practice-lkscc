@@ -6,7 +6,7 @@ app@up:
 	-f nodejs/app-deployment.yml
 
 app@down:
-	kubectl apply -f nodejs/app-configmap.yml \
+	kubectl delete -f nodejs/app-configmap.yml \
 	-f nodejs/app-secret.yml \
 	-f nodejs/app-deployment.yml
 
