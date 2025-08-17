@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+spec:
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - name: nodejs-api-s3
+        image: tirtahakimpambudhi/nodejs-s3-app
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
+          name: nodejs-api-s3-port
+        envFrom:
+          - secretRef: 
+              name: 'app-secret'
+          - configMapRef: 
+              name: 'app-configmap'
+        
+--- 
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+spec:
+  selector:
+    app: api
+  type: NodePort
+  ports:
+  - name: app-service-port
+    protocol: TCP
+    port: 3000
+    targetPort: 3000
+    nodePort: 33000
